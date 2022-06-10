@@ -233,6 +233,7 @@ func updateMovie(c echo.Context) error {
 		log.Printf("UpdateMovie Failed")
 		return c.String(http.StatusNotFound, "Can't find the movie with the given id")
 	}
+	// comment here
 }
 
 func deleteMovie(c echo.Context) error {
