@@ -1,3 +1,16 @@
+// Dear programmer:
+// When I wrote this code, only god and
+// I knew how it worked.
+// Now, only god knows it!
+//
+// Therefore, if you are trying to optimize
+// this code and it fails (most surely),
+// please increase this counter as a
+// warning for the next person:
+//
+// total_hours_wasted_here = 35
+//
+
 package main
 
 import (
@@ -28,7 +41,7 @@ var clientMovie pb.ComputeServiceClient
 func getAllUsers(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	var Users []*pb.UserInfo
+	var Users []*pb.UserInfoRes
 
 	req := &pb.Empty{}
 	stream, err := clientUser.GetUsers(ctx, req)
@@ -72,7 +85,7 @@ func addUser(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	defer c.Request().Body.Close()
-	var req = pb.UserInfo{}
+	var req = &pb.UserInfoReq{}
 
 	b, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
@@ -81,7 +94,8 @@ func addUser(c echo.Context) error {
 	}
 
 	json.Unmarshal(b, &req)
-	res, err := clientUser.CreateUser(ctx, &req)
+	// c.Bind(req)
+	res, err := clientUser.CreateUser(ctx, req)
 	if err != nil {
 		log.Fatalf("%v.CreateUser(_) = _, %v", clientUser, err)
 	}
@@ -98,7 +112,7 @@ func updateUser(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	defer c.Request().Body.Close()
-	var req = pb.UserInfo{Id: userId}
+	var req = pb.UserInfoReq{Code: userId}
 
 	b, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
@@ -126,7 +140,7 @@ func deleteUser(c echo.Context) error {
 	defer cancel()
 
 	req := &pb.Id{Value: userId}
-	res, err := clientUser.DeleteMovie(ctx, req)
+	res, err := clientUser.DeleteUser(ctx, req)
 	if err != nil {
 		log.Fatalf("%v.DeleteUser(_) = _, %v", clientUser, err)
 	}
@@ -139,11 +153,24 @@ func deleteUser(c echo.Context) error {
 	}
 }
 
+func getWatchedMovies(c echo.Context) error {
+	userId := c.Param("id")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	req := &pb.Id{Value: userId}
+	res, err := clientUser.GetWatchedMoviesGateway(ctx, req)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, "Can't find the User with the given id")
+	}
+	json.NewEncoder(c.Response().Writer).Encode(res.WatchedMovies)
+	return c.String(http.StatusOK, "")
+}
+
 // for Movie
 func getAllMovies(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	var Movies []*pb.MovieInfo
+	var Movies []*pb.MovieInfoRes
 
 	req := &pb.Empty{}
 	stream, err := clientMovie.GetMovies(ctx, req)
@@ -187,7 +214,7 @@ func addMovie(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	defer c.Request().Body.Close()
-	var req = pb.MovieInfo{}
+	var req = pb.MovieInfoReq{}
 
 	b, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
@@ -209,11 +236,11 @@ func addMovie(c echo.Context) error {
 }
 
 func updateMovie(c echo.Context) error {
-	movieId := c.Param("id")
+	movieCode := c.Param("id")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	defer c.Request().Body.Close()
-	var req = pb.MovieInfo{Id: movieId}
+	var req = pb.MovieInfoReq{Code: movieCode}
 
 	b, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
@@ -233,7 +260,7 @@ func updateMovie(c echo.Context) error {
 		log.Printf("UpdateMovie Failed")
 		return c.String(http.StatusNotFound, "Can't find the movie with the given id")
 	}
-	// comment here
+
 }
 
 func deleteMovie(c echo.Context) error {
@@ -282,6 +309,7 @@ func main() {
 	e.POST("/users", addUser)
 	e.PUT("/users/:id", updateUser)
 	e.DELETE("/users/:id", deleteUser)
+	e.GET("/users/:id/watched_movies", getWatchedMovies)
 
 	e.GET("/movies", getAllMovies)
 	e.GET("/movies/:id", getMovie)

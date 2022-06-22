@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = "./";
+
+package test;
+
+service UserService {
+    rpc GetUsers (Empty) returns (stream UserInfo);
+    rpc GetUser (Id) returns (UserInfo);
+    rpc CreateUser (UserInfoReq) returns (Id);
+    rpc UpdateUser (UserInfo) returns (Status);
+    rpc DeleteUser (Id) returns (Status);
+
+    rpc GetWatchedMoviesGateway (Id) returns (MovieInfoList);
+}
+
+message Empty {}
+
+message UserInfoReq {
+    string name = 1;
+    string email = 2;
+    string password = 3;
+    repeated string watched_movies = 4;
+}
+
+message UserInfo {
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    string password = 4;
+    repeated string watched_movies = 5;
+}
+
+message MovieInfo {
+    string id = 1;
+    string isbn = 2;
+    string title = 3;
+    Director director = 4;
+}
+
+message Director {
+    string firstname = 1;
+    string lastname = 2;
+}
+
+message MovieInfoList {
+    repeated MovieInfo watched_movies = 5;
+}
+
+message Id {
+    string value = 1;
+}
+
+message Status {
+    int32 value = 1;
+}

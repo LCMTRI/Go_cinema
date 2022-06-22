@@ -23,15 +23,17 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ComputeServiceClient interface {
 	GetUsers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (ComputeService_GetUsersClient, error)
-	GetUser(ctx context.Context, in *Id, opts ...grpc.CallOption) (*UserInfo, error)
-	CreateUser(ctx context.Context, in *UserInfo, opts ...grpc.CallOption) (*Id, error)
-	UpdateUser(ctx context.Context, in *UserInfo, opts ...grpc.CallOption) (*Status, error)
+	GetUser(ctx context.Context, in *Id, opts ...grpc.CallOption) (*UserInfoRes, error)
+	CreateUser(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*Id, error)
+	UpdateUser(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*Status, error)
 	DeleteUser(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Status, error)
 	GetMovies(ctx context.Context, in *Empty, opts ...grpc.CallOption) (ComputeService_GetMoviesClient, error)
-	GetMovie(ctx context.Context, in *Id, opts ...grpc.CallOption) (*MovieInfo, error)
-	CreateMovie(ctx context.Context, in *MovieInfo, opts ...grpc.CallOption) (*Id, error)
-	UpdateMovie(ctx context.Context, in *MovieInfo, opts ...grpc.CallOption) (*Status, error)
+	GetMovie(ctx context.Context, in *Id, opts ...grpc.CallOption) (*MovieInfoRes, error)
+	CreateMovie(ctx context.Context, in *MovieInfoReq, opts ...grpc.CallOption) (*Id, error)
+	UpdateMovie(ctx context.Context, in *MovieInfoReq, opts ...grpc.CallOption) (*Status, error)
 	DeleteMovie(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Status, error)
+	GetWatchedMoviesUser(ctx context.Context, in *MovieList, opts ...grpc.CallOption) (ComputeService_GetWatchedMoviesUserClient, error)
+	GetWatchedMoviesGateway(ctx context.Context, in *Id, opts ...grpc.CallOption) (*MovieInfoList, error)
 }
 
 type computeServiceClient struct {
@@ -58,7 +60,7 @@ func (c *computeServiceClient) GetUsers(ctx context.Context, in *Empty, opts ...
 }
 
 type ComputeService_GetUsersClient interface {
-	Recv() (*UserInfo, error)
+	Recv() (*UserInfoRes, error)
 	grpc.ClientStream
 }
 
@@ -66,16 +68,16 @@ type computeServiceGetUsersClient struct {
 	grpc.ClientStream
 }
 
-func (x *computeServiceGetUsersClient) Recv() (*UserInfo, error) {
-	m := new(UserInfo)
+func (x *computeServiceGetUsersClient) Recv() (*UserInfoRes, error) {
+	m := new(UserInfoRes)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *computeServiceClient) GetUser(ctx context.Context, in *Id, opts ...grpc.CallOption) (*UserInfo, error) {
-	out := new(UserInfo)
+func (c *computeServiceClient) GetUser(ctx context.Context, in *Id, opts ...grpc.CallOption) (*UserInfoRes, error) {
+	out := new(UserInfoRes)
 	err := c.cc.Invoke(ctx, "/test.ComputeService/GetUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -83,7 +85,7 @@ func (c *computeServiceClient) GetUser(ctx context.Context, in *Id, opts ...grpc
 	return out, nil
 }
 
-func (c *computeServiceClient) CreateUser(ctx context.Context, in *UserInfo, opts ...grpc.CallOption) (*Id, error) {
+func (c *computeServiceClient) CreateUser(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*Id, error) {
 	out := new(Id)
 	err := c.cc.Invoke(ctx, "/test.ComputeService/CreateUser", in, out, opts...)
 	if err != nil {
@@ -92,7 +94,7 @@ func (c *computeServiceClient) CreateUser(ctx context.Context, in *UserInfo, opt
 	return out, nil
 }
 
-func (c *computeServiceClient) UpdateUser(ctx context.Context, in *UserInfo, opts ...grpc.CallOption) (*Status, error) {
+func (c *computeServiceClient) UpdateUser(ctx context.Context, in *UserInfoReq, opts ...grpc.CallOption) (*Status, error) {
 	out := new(Status)
 	err := c.cc.Invoke(ctx, "/test.ComputeService/UpdateUser", in, out, opts...)
 	if err != nil {
@@ -126,7 +128,7 @@ func (c *computeServiceClient) GetMovies(ctx context.Context, in *Empty, opts ..
 }
 
 type ComputeService_GetMoviesClient interface {
-	Recv() (*MovieInfo, error)
+	Recv() (*MovieInfoRes, error)
 	grpc.ClientStream
 }
 
@@ -134,16 +136,16 @@ type computeServiceGetMoviesClient struct {
 	grpc.ClientStream
 }
 
-func (x *computeServiceGetMoviesClient) Recv() (*MovieInfo, error) {
-	m := new(MovieInfo)
+func (x *computeServiceGetMoviesClient) Recv() (*MovieInfoRes, error) {
+	m := new(MovieInfoRes)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *computeServiceClient) GetMovie(ctx context.Context, in *Id, opts ...grpc.CallOption) (*MovieInfo, error) {
-	out := new(MovieInfo)
+func (c *computeServiceClient) GetMovie(ctx context.Context, in *Id, opts ...grpc.CallOption) (*MovieInfoRes, error) {
+	out := new(MovieInfoRes)
 	err := c.cc.Invoke(ctx, "/test.ComputeService/GetMovie", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -151,7 +153,7 @@ func (c *computeServiceClient) GetMovie(ctx context.Context, in *Id, opts ...grp
 	return out, nil
 }
 
-func (c *computeServiceClient) CreateMovie(ctx context.Context, in *MovieInfo, opts ...grpc.CallOption) (*Id, error) {
+func (c *computeServiceClient) CreateMovie(ctx context.Context, in *MovieInfoReq, opts ...grpc.CallOption) (*Id, error) {
 	out := new(Id)
 	err := c.cc.Invoke(ctx, "/test.ComputeService/CreateMovie", in, out, opts...)
 	if err != nil {
@@ -160,7 +162,7 @@ func (c *computeServiceClient) CreateMovie(ctx context.Context, in *MovieInfo, o
 	return out, nil
 }
 
-func (c *computeServiceClient) UpdateMovie(ctx context.Context, in *MovieInfo, opts ...grpc.CallOption) (*Status, error) {
+func (c *computeServiceClient) UpdateMovie(ctx context.Context, in *MovieInfoReq, opts ...grpc.CallOption) (*Status, error) {
 	out := new(Status)
 	err := c.cc.Invoke(ctx, "/test.ComputeService/UpdateMovie", in, out, opts...)
 	if err != nil {
@@ -178,20 +180,63 @@ func (c *computeServiceClient) DeleteMovie(ctx context.Context, in *Id, opts ...
 	return out, nil
 }
 
+func (c *computeServiceClient) GetWatchedMoviesUser(ctx context.Context, in *MovieList, opts ...grpc.CallOption) (ComputeService_GetWatchedMoviesUserClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ComputeService_ServiceDesc.Streams[2], "/test.ComputeService/GetWatchedMoviesUser", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &computeServiceGetWatchedMoviesUserClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type ComputeService_GetWatchedMoviesUserClient interface {
+	Recv() (*MovieInfoRes, error)
+	grpc.ClientStream
+}
+
+type computeServiceGetWatchedMoviesUserClient struct {
+	grpc.ClientStream
+}
+
+func (x *computeServiceGetWatchedMoviesUserClient) Recv() (*MovieInfoRes, error) {
+	m := new(MovieInfoRes)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *computeServiceClient) GetWatchedMoviesGateway(ctx context.Context, in *Id, opts ...grpc.CallOption) (*MovieInfoList, error) {
+	out := new(MovieInfoList)
+	err := c.cc.Invoke(ctx, "/test.ComputeService/GetWatchedMoviesGateway", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ComputeServiceServer is the server API for ComputeService service.
 // All implementations must embed UnimplementedComputeServiceServer
 // for forward compatibility
 type ComputeServiceServer interface {
 	GetUsers(*Empty, ComputeService_GetUsersServer) error
-	GetUser(context.Context, *Id) (*UserInfo, error)
-	CreateUser(context.Context, *UserInfo) (*Id, error)
-	UpdateUser(context.Context, *UserInfo) (*Status, error)
+	GetUser(context.Context, *Id) (*UserInfoRes, error)
+	CreateUser(context.Context, *UserInfoReq) (*Id, error)
+	UpdateUser(context.Context, *UserInfoReq) (*Status, error)
 	DeleteUser(context.Context, *Id) (*Status, error)
 	GetMovies(*Empty, ComputeService_GetMoviesServer) error
-	GetMovie(context.Context, *Id) (*MovieInfo, error)
-	CreateMovie(context.Context, *MovieInfo) (*Id, error)
-	UpdateMovie(context.Context, *MovieInfo) (*Status, error)
+	GetMovie(context.Context, *Id) (*MovieInfoRes, error)
+	CreateMovie(context.Context, *MovieInfoReq) (*Id, error)
+	UpdateMovie(context.Context, *MovieInfoReq) (*Status, error)
 	DeleteMovie(context.Context, *Id) (*Status, error)
+	GetWatchedMoviesUser(*MovieList, ComputeService_GetWatchedMoviesUserServer) error
+	GetWatchedMoviesGateway(context.Context, *Id) (*MovieInfoList, error)
 	mustEmbedUnimplementedComputeServiceServer()
 }
 
@@ -202,13 +247,13 @@ type UnimplementedComputeServiceServer struct {
 func (UnimplementedComputeServiceServer) GetUsers(*Empty, ComputeService_GetUsersServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
-func (UnimplementedComputeServiceServer) GetUser(context.Context, *Id) (*UserInfo, error) {
+func (UnimplementedComputeServiceServer) GetUser(context.Context, *Id) (*UserInfoRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
-func (UnimplementedComputeServiceServer) CreateUser(context.Context, *UserInfo) (*Id, error) {
+func (UnimplementedComputeServiceServer) CreateUser(context.Context, *UserInfoReq) (*Id, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedComputeServiceServer) UpdateUser(context.Context, *UserInfo) (*Status, error) {
+func (UnimplementedComputeServiceServer) UpdateUser(context.Context, *UserInfoReq) (*Status, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedComputeServiceServer) DeleteUser(context.Context, *Id) (*Status, error) {
@@ -217,17 +262,23 @@ func (UnimplementedComputeServiceServer) DeleteUser(context.Context, *Id) (*Stat
 func (UnimplementedComputeServiceServer) GetMovies(*Empty, ComputeService_GetMoviesServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetMovies not implemented")
 }
-func (UnimplementedComputeServiceServer) GetMovie(context.Context, *Id) (*MovieInfo, error) {
+func (UnimplementedComputeServiceServer) GetMovie(context.Context, *Id) (*MovieInfoRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMovie not implemented")
 }
-func (UnimplementedComputeServiceServer) CreateMovie(context.Context, *MovieInfo) (*Id, error) {
+func (UnimplementedComputeServiceServer) CreateMovie(context.Context, *MovieInfoReq) (*Id, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateMovie not implemented")
 }
-func (UnimplementedComputeServiceServer) UpdateMovie(context.Context, *MovieInfo) (*Status, error) {
+func (UnimplementedComputeServiceServer) UpdateMovie(context.Context, *MovieInfoReq) (*Status, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMovie not implemented")
 }
 func (UnimplementedComputeServiceServer) DeleteMovie(context.Context, *Id) (*Status, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMovie not implemented")
+}
+func (UnimplementedComputeServiceServer) GetWatchedMoviesUser(*MovieList, ComputeService_GetWatchedMoviesUserServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetWatchedMoviesUser not implemented")
+}
+func (UnimplementedComputeServiceServer) GetWatchedMoviesGateway(context.Context, *Id) (*MovieInfoList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWatchedMoviesGateway not implemented")
 }
 func (UnimplementedComputeServiceServer) mustEmbedUnimplementedComputeServiceServer() {}
 
@@ -251,7 +302,7 @@ func _ComputeService_GetUsers_Handler(srv interface{}, stream grpc.ServerStream)
 }
 
 type ComputeService_GetUsersServer interface {
-	Send(*UserInfo) error
+	Send(*UserInfoRes) error
 	grpc.ServerStream
 }
 
@@ -259,7 +310,7 @@ type computeServiceGetUsersServer struct {
 	grpc.ServerStream
 }
 
-func (x *computeServiceGetUsersServer) Send(m *UserInfo) error {
+func (x *computeServiceGetUsersServer) Send(m *UserInfoRes) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -282,7 +333,7 @@ func _ComputeService_GetUser_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _ComputeService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserInfo)
+	in := new(UserInfoReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -294,13 +345,13 @@ func _ComputeService_CreateUser_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/test.ComputeService/CreateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ComputeServiceServer).CreateUser(ctx, req.(*UserInfo))
+		return srv.(ComputeServiceServer).CreateUser(ctx, req.(*UserInfoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ComputeService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserInfo)
+	in := new(UserInfoReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -312,7 +363,7 @@ func _ComputeService_UpdateUser_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/test.ComputeService/UpdateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ComputeServiceServer).UpdateUser(ctx, req.(*UserInfo))
+		return srv.(ComputeServiceServer).UpdateUser(ctx, req.(*UserInfoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -344,7 +395,7 @@ func _ComputeService_GetMovies_Handler(srv interface{}, stream grpc.ServerStream
 }
 
 type ComputeService_GetMoviesServer interface {
-	Send(*MovieInfo) error
+	Send(*MovieInfoRes) error
 	grpc.ServerStream
 }
 
@@ -352,7 +403,7 @@ type computeServiceGetMoviesServer struct {
 	grpc.ServerStream
 }
 
-func (x *computeServiceGetMoviesServer) Send(m *MovieInfo) error {
+func (x *computeServiceGetMoviesServer) Send(m *MovieInfoRes) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -375,7 +426,7 @@ func _ComputeService_GetMovie_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _ComputeService_CreateMovie_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MovieInfo)
+	in := new(MovieInfoReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -387,13 +438,13 @@ func _ComputeService_CreateMovie_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/test.ComputeService/CreateMovie",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ComputeServiceServer).CreateMovie(ctx, req.(*MovieInfo))
+		return srv.(ComputeServiceServer).CreateMovie(ctx, req.(*MovieInfoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ComputeService_UpdateMovie_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MovieInfo)
+	in := new(MovieInfoReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -405,7 +456,7 @@ func _ComputeService_UpdateMovie_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/test.ComputeService/UpdateMovie",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ComputeServiceServer).UpdateMovie(ctx, req.(*MovieInfo))
+		return srv.(ComputeServiceServer).UpdateMovie(ctx, req.(*MovieInfoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -424,6 +475,45 @@ func _ComputeService_DeleteMovie_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ComputeServiceServer).DeleteMovie(ctx, req.(*Id))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ComputeService_GetWatchedMoviesUser_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(MovieList)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ComputeServiceServer).GetWatchedMoviesUser(m, &computeServiceGetWatchedMoviesUserServer{stream})
+}
+
+type ComputeService_GetWatchedMoviesUserServer interface {
+	Send(*MovieInfoRes) error
+	grpc.ServerStream
+}
+
+type computeServiceGetWatchedMoviesUserServer struct {
+	grpc.ServerStream
+}
+
+func (x *computeServiceGetWatchedMoviesUserServer) Send(m *MovieInfoRes) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _ComputeService_GetWatchedMoviesGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Id)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComputeServiceServer).GetWatchedMoviesGateway(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/test.ComputeService/GetWatchedMoviesGateway",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComputeServiceServer).GetWatchedMoviesGateway(ctx, req.(*Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -467,6 +557,10 @@ var ComputeService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteMovie",
 			Handler:    _ComputeService_DeleteMovie_Handler,
 		},
+		{
+			MethodName: "GetWatchedMoviesGateway",
+			Handler:    _ComputeService_GetWatchedMoviesGateway_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
@@ -477,6 +571,11 @@ var ComputeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "GetMovies",
 			Handler:       _ComputeService_GetMovies_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetWatchedMoviesUser",
+			Handler:       _ComputeService_GetWatchedMoviesUser_Handler,
 			ServerStreams: true,
 		},
 	},
